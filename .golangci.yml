@@ -1,0 +1,26 @@
+version: "2"
+
+linters:
+  enable:
+    - bodyclose
+    - canonicalheader
+    - contextcheck
+    - copyloopvar
+    - errcheck
+    - errorlint
+    - exhaustive
+    - fatcontext
+    - goconst
+    - gocritic
+    - gosec
+    - govet
+    - importas
+    - ineffassign
+    - misspell
+    - nilerr
+    - rowserrcheck
+    - staticcheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
