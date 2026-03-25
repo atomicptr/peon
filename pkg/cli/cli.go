@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/atomicptr/peon/pkg/cli/commands/list"
 	"github.com/atomicptr/peon/pkg/cli/commands/remove"
@@ -12,13 +13,17 @@ import (
 	"github.com/atomicptr/peon/pkg/config"
 	"github.com/atomicptr/peon/pkg/git"
 	"github.com/atomicptr/peon/pkg/meta"
+	"github.com/lmittmann/tint"
 	"github.com/urfave/cli/v3"
 )
 
 func Run() error {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}))
+	h := tint.NewHandler(os.Stderr, &tint.Options{
+		Level:      slog.LevelDebug,
+		TimeFormat: time.Kitchen,
+		AddSource:  true,
+	})
+	logger := slog.New(h)
 	slog.SetDefault(logger)
 
 	ctx := context.Background()

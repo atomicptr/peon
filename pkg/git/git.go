@@ -48,6 +48,13 @@ func (h Handler) exec(params ...string) (string, error) {
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
+	slog.Debug(
+		"run git command",
+		"cwd", cwd,
+		"git", h.Executable,
+		"params", params,
+	)
+
 	err := cmd.Run()
 	if err != nil {
 		slog.Debug(
@@ -55,13 +62,21 @@ func (h Handler) exec(params ...string) (string, error) {
 			"git", h.Executable,
 			"params", params,
 			"err", err,
-			"stdout", stdout.String(),
 			"stderr", stderr.String(),
 		)
 		return "", fmt.Errorf("command `%s %s` failed: %w", h.Executable, params, err)
 	}
 
-	return strings.TrimSpace(stdout.String()), nil
+	out := strings.TrimSpace(stdout.String())
+	slog.Debug(
+		"output",
+		"cwd", cwd,
+		"git", h.Executable,
+		"params", params,
+		"stdout", out,
+	)
+
+	return out, nil
 }
 
 func (h Handler) Version() string {
