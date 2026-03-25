@@ -152,8 +152,7 @@ func printTable(wtRows []wtRow) error {
 
 	branchWidth := max(min(colWidths[indexBranch], remainingWidth/4), len(listHeaders[indexBranch]))
 	pathWidth := max(min(colWidths[indexPath], remainingWidth/3), len(listHeaders[indexPath]))
-
-	messageWidth := remainingWidth - branchWidth - pathWidth
+	messageWidth := min(remainingWidth-branchWidth-pathWidth, colWidths[indexMessage])
 
 	t := table.New().
 		Border(lipgloss.HiddenBorder()).
