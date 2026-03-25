@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/atomicptr/peon/pkg/cli/commands/list"
@@ -15,6 +16,11 @@ import (
 )
 
 func Run() error {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+	slog.SetDefault(logger)
+
 	ctx := context.Background()
 
 	cfg, err := config.FromEnv()
@@ -29,6 +35,8 @@ func Run() error {
 		return fmt.Errorf("could not find git: %w", err)
 	}
 
+	slog.Debug("git found", "path", g.Executable, "version", g.Version())
+
 	ctx = context.WithValue(ctx, git.ContextKey, g)
 
 	cmd := &cli.Command{
@@ -39,7 +47,7 @@ func Run() error {
 			list.Command(),
 			remove.Command(),
 		},
-		Version: meta.VersionString(),
+		Version: meta.VersionStringWith(g.Version()),
 	}
 
 	return cmd.Run(ctx, os.Args)

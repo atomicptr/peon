@@ -1,6 +1,9 @@
 package meta
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 var Version = ""
 var GitCommit = ""
@@ -17,4 +20,12 @@ func VersionString() string {
 	}
 
 	return fmt.Sprintf("%s%s", Version, commitString)
+}
+
+func VersionStringWith(otherVersions ...string) string {
+	if len(otherVersions) == 0 {
+		return VersionString()
+	}
+
+	return fmt.Sprintf("%s; %s", VersionString(), strings.Join(otherVersions, "; "))
 }

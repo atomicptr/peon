@@ -3,8 +3,10 @@ package config
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/adrg/xdg"
@@ -48,6 +50,8 @@ func FromPath(path string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	slog.Debug("config file found", "path", strings.ReplaceAll(filepath.Clean(path), "\n", ""))
 
 	return &config, nil
 }

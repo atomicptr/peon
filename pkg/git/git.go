@@ -64,6 +64,15 @@ func (h Handler) exec(params ...string) (string, error) {
 	return strings.TrimSpace(stdout.String()), nil
 }
 
+func (h Handler) Version() string {
+	version, err := h.exec("version")
+	if err != nil {
+		return ""
+	}
+
+	return version
+}
+
 func FromEnv() (*Handler, error) {
 	path, ok := fs.ValidatePath(os.Getenv("PEON_GIT"))
 	if ok {
