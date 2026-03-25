@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/table"
@@ -73,8 +74,12 @@ func makeTableRow(wt git.Worktree, c git.CommitInfo) []string {
 
 	branch := wt.Branch
 
+	branch = strings.TrimPrefix(branch, "refs/heads/")
+	branch = strings.TrimPrefix(branch, "refs/remotes/")
+	branch = strings.TrimPrefix(branch, "refs/tags/")
+
 	if branch == "" && wt.IsDetached {
-		branch = "detached"
+		branch = "[detached]"
 	}
 
 	return []string{
@@ -136,10 +141,9 @@ func printTable(wtRows []wtRow) error {
 	}
 
 	const (
-		marginWidth   = 1
-		borderWidth   = 0
-		paddingWidth  = 0
-		paddingHeight = 1
+		marginWidth  = 2
+		borderWidth  = 0
+		paddingWidth = 0
 	)
 
 	chrome := (marginWidth * 2) + (borderWidth * 2) + (paddingWidth * 2) + (len(listHeaders) - 1)
@@ -153,6 +157,7 @@ func printTable(wtRows []wtRow) error {
 
 	t := table.New().
 		Border(lipgloss.HiddenBorder()).
+		BorderRow(false).
 		Headers(listHeaders...).
 		Rows(rows...).
 		StyleFunc(func(row, col int) lipgloss.Style {
