@@ -81,6 +81,13 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
+	commonRoot, err := g.FindCommonRoot()
+	if err != nil {
+		return err
+	}
+
+	commonRootName := filepath.Base(commonRoot)
+
 	var matchedWt *git.Worktree = nil
 
 	// look if there is a direct hit/match
@@ -88,14 +95,26 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 		branch := wt.BranchShortName()
 
 		// check for the exact same name
-		if branch == name || strings.EqualFold(branch, name) || branch == nameSlug || strings.EqualFold(branch, nameSlug) {
+		if strings.EqualFold(branch, name) || strings.EqualFold(branch, nameSlug) {
 			matchedWt = &wt
 			break
 		}
 
-		pathName := strings.ToLower(filepath.Base(wt.Path))
+		pathName := filepath.Base(wt.Path)
 
-		if strings.HasSuffix(pathName, "-"+strings.ToLower(name)) || strings.HasSuffix(pathName, "-"+nameSlug) {
+		// skip path suffix matching on root dir
+		if pathName == commonRootName {
+			continue
+		}
+
+		// not managed by us, skip
+		if !strings.HasPrefix(pathName, commonRootName) {
+			continue
+		}
+
+		suffix := strings.TrimLeft(pathName[len(commonRootName):], "-")
+
+		if strings.EqualFold(suffix, name) {
 			matchedWt = &wt
 			break
 		}
@@ -104,9 +123,30 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 	createNew := cmd.Bool("create")
 
 	if createNew {
-		// TODO: check if name conflicts, return error
-		// TODO: create the worktree
-		return nil // TODO: fall through cuz we switchin
+		if matchedWt != nil {
+			return fmt.Errorf("can't create worktree `%s`, because it collides with `%s` (%s)", name, matchedWt.Path, matchedWt.BranchShortName())
+		}
+
+		targetPath := filepath.Join(filepath.Dir(commonRoot), fmt.Sprintf("%s-%s", commonRootName, nameSlug))
+
+		slog.Debug("creating new worktree...", "path", targetPath)
+
+		if g.BranchExists(name) {
+			wt, err := g.CreateWorktreeFromExistingBranch(name, targetPath)
+			if err != nil {
+				return fmt.Errorf("could not create worktree from branch `%s`: %w", name, err)
+			}
+
+			matchedWt = wt
+		} else {
+			// TODO: also implement branching off a different branch
+			wt, err := g.CreateNewWorktreeFromMaster(name, targetPath)
+			if err != nil {
+				return fmt.Errorf("could not create new worktree: %w", err)
+			}
+
+			matchedWt = wt
+		}
 	}
 
 	// no wt found yet, try to fuzzy find

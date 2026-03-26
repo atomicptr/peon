@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"path/filepath"
 	"strings"
+
+	"github.com/atomicptr/peon/pkg/fs"
 )
 
 type FlagKind int
@@ -82,4 +84,85 @@ func (h Handler) parseWorktreeResults(data, sep string) ([]Worktree, error) {
 	}
 
 	return worktrees, nil
+}
+
+func (h Handler) CreateNewWorktreeFromMaster(newBranchName, targetPath string) (*Worktree, error) {
+	branch := h.FindMasterBranch()
+	if branch == "" {
+		return nil, fmt.Errorf("could not determine branch name to fork off from")
+	}
+
+	return h.CreateNewWorktree(newBranchName, branch, targetPath)
+}
+
+func (h Handler) CreateNewWorktree(newBranchName, sourceBranch, targetPath string) (*Worktree, error) {
+	if fs.Exists(targetPath) {
+		return nil, fmt.Errorf("create new worktree - target path `%s` already exists", targetPath)
+	}
+
+	if !h.BranchExists(sourceBranch) {
+		return nil, fmt.Errorf("create new worktree - source branch `%s` does not exist", sourceBranch)
+	}
+
+	if h.BranchExists(newBranchName) {
+		return nil, fmt.Errorf("create new worktree - branch `%s` already exists", newBranchName)
+	}
+
+	_, err := h.exec("worktree", "add", "-b", newBranchName, targetPath, sourceBranch)
+	if err != nil {
+		return nil, err
+	}
+
+	worktrees, err := h.GetWorktrees()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wt := range worktrees {
+		wtPath, err := filepath.Abs(wt.Path)
+		if err != nil {
+			slog.Error("create new worktree - could not get absolute path of worktree", "err", err)
+			continue
+		}
+
+		if wtPath == targetPath {
+			return &wt, nil
+		}
+	}
+
+	return nil, fmt.Errorf("could not find newly created worktree")
+}
+
+func (h Handler) CreateWorktreeFromExistingBranch(branch, targetPath string) (*Worktree, error) {
+	if !h.BranchExists(branch) {
+		return nil, fmt.Errorf("branch `%s` does not exist", branch)
+	}
+
+	if fs.Exists(targetPath) {
+		return nil, fmt.Errorf("target path `%s` already exists", targetPath)
+	}
+
+	_, err := h.exec("worktree", "add", targetPath, branch)
+	if err != nil {
+		return nil, err
+	}
+
+	worktrees, err := h.GetWorktrees()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wt := range worktrees {
+		wtPath, err := filepath.Abs(wt.Path)
+		if err != nil {
+			slog.Error("could not get absolute path of worktree", "err", err)
+			continue
+		}
+
+		if wtPath == targetPath {
+			return &wt, nil
+		}
+	}
+
+	return nil, fmt.Errorf("could not find newly created worktree")
 }

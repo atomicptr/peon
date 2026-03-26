@@ -69,7 +69,7 @@ func (h Handler) exec(params ...string) (string, error) {
 
 	out := strings.TrimSpace(stdout.String())
 	slog.Debug(
-		"output",
+		"run git command: output",
 		"cwd", cwd,
 		"git", h.Executable,
 		"params", params,
