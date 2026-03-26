@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
+	"time"
 
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/table"
@@ -59,6 +62,13 @@ func listCommand(ctx context.Context, cmd *cli.Command) error {
 		})
 	}
 
+	gitRoot, err := git.FindProjectRoot()
+	if err != nil {
+		return err
+	}
+
+	sortWtRows(gitRoot, rows)
+
 	return printTable(rows)
 }
 
@@ -78,16 +88,16 @@ func makeTableRow(wt git.Worktree, c git.CommitInfo) []string {
 	branch = strings.TrimPrefix(branch, "refs/remotes/")
 	branch = strings.TrimPrefix(branch, "refs/tags/")
 
-	if branch == "" && wt.IsDetached {
-		branch = "[detached]"
+	if branch == "" {
+		branch = "-"
 	}
 
 	return []string{
 		branch,
 		path,
 		wt.Head[0:7],
-		c.Subject,
 		util.RelativeTime(c.Timestamp),
+		c.Subject,
 	}
 }
 
@@ -95,11 +105,11 @@ const (
 	indexBranch = iota
 	indexPath
 	indexCommit
-	indexMessage
 	indexAge
+	indexMessage
 )
 
-var listHeaders = []string{"Branch", "Path", "Commit", "Message", "Age"}
+var listHeaders = []string{"Branch", "Path", "Commit", "Age", "Message"}
 
 var listHeaderStyle = lipgloss.
 	NewStyle().
@@ -114,6 +124,28 @@ var listRowStyle = lipgloss.
 type wtRow struct {
 	Worktree git.Worktree
 	Commit   git.CommitInfo
+}
+
+func sortWtRows(currentPath string, wtRows []wtRow) {
+	now := time.Now()
+
+	sort.SliceStable(wtRows, func(i, j int) bool {
+		iIsCurrent := wtRows[i].Worktree.Path == currentPath
+		jIsCurrent := wtRows[j].Worktree.Path == currentPath
+
+		if iIsCurrent && !jIsCurrent {
+			return true
+		}
+
+		if !iIsCurrent && jIsCurrent {
+			return false
+		}
+
+		diffI := math.Abs(float64(now.Sub(wtRows[i].Commit.Timestamp)))
+		diffJ := math.Abs(float64(now.Sub(wtRows[j].Commit.Timestamp)))
+
+		return diffI < diffJ
+	})
 }
 
 func printTable(wtRows []wtRow) error {
