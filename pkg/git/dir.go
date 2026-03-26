@@ -2,6 +2,7 @@ package git
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/atomicptr/peon/pkg/fs"
 )
@@ -29,7 +30,7 @@ func (h Handler) FindProjectRoot() (string, error) {
 	return res, nil
 }
 
-func (h Handler) FindGitDir() (string, error) {
+func (h Handler) FindCurrentGitDir() (string, error) {
 	res, err := h.exec("rev-parse", "--git-dir")
 	if err != nil {
 		return "", err
@@ -41,4 +42,27 @@ func (h Handler) FindGitDir() (string, error) {
 	}
 
 	return res, nil
+}
+
+func (h Handler) FindCommonGitDir() (string, error) {
+	res, err := h.exec("rev-parse", "--git-common-dir")
+	if err != nil {
+		return "", err
+	}
+
+	res, ok := fs.ValidatePath(res)
+	if !ok {
+		return "", fmt.Errorf("path %s does not exist", res)
+	}
+
+	return res, nil
+}
+
+func (h Handler) FindCommonRoot() (string, error) {
+	res, err := h.FindCommonGitDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Dir(res), nil
 }

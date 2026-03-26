@@ -25,13 +25,13 @@ func Command() *cli.Command {
 }
 
 func removeCommand(ctx context.Context, cmd *cli.Command) error {
-	git, err := git.FromContext(ctx)
+	g, err := git.FromContext(ctx)
 	if err != nil {
 		return err
 	}
 
-	if !git.IsGitDir() {
-		return fmt.Errorf("%s is not part of a git tree", git.WorkingDir)
+	if !g.IsGitDir() {
+		return fmt.Errorf("%s is not part of a git tree", g.WorkingDir)
 	}
 
 	return nil

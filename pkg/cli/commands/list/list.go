@@ -29,16 +29,16 @@ func Command() *cli.Command {
 }
 
 func listCommand(ctx context.Context, cmd *cli.Command) error {
-	git, err := git.FromContext(ctx)
+	g, err := git.FromContext(ctx)
 	if err != nil {
 		return err
 	}
 
-	if !git.IsGitDir() {
-		return fmt.Errorf("%s is not part of a git tree", git.WorkingDir)
+	if !g.IsGitDir() {
+		return fmt.Errorf("%s is not part of a git tree", g.WorkingDir)
 	}
 
-	worktrees, err := git.GetWorktrees()
+	worktrees, err := g.GetWorktrees()
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func listCommand(ctx context.Context, cmd *cli.Command) error {
 			continue
 		}
 
-		c, err := git.FetchCommitInfo(wt.Head)
+		c, err := g.FetchCommitInfo(wt.Head)
 		if err != nil {
 			slog.Error("could not fetch commit info", "err", err, "hash", wt.Head)
 			continue
@@ -62,7 +62,7 @@ func listCommand(ctx context.Context, cmd *cli.Command) error {
 		})
 	}
 
-	gitRoot, err := git.FindProjectRoot()
+	gitRoot, err := g.FindProjectRoot()
 	if err != nil {
 		return err
 	}
