@@ -9,6 +9,8 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+const bashEvalCommand = `eval "$(peon shell bash)"`
+
 func bashCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "bash",

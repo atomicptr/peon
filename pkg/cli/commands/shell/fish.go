@@ -9,6 +9,8 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+const fishEvalCommand = `eval "$(peon shell fish)"`
+
 func fishCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "fish",

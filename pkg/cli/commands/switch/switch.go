@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/atomicptr/peon/pkg/cli/commands/shell"
 	"github.com/atomicptr/peon/pkg/cli/common/orders"
 	"github.com/atomicptr/peon/pkg/git"
 	"github.com/urfave/cli/v3"
@@ -45,8 +46,7 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 
 	orders, hasOrders := orders.FromEnv()
 	if !hasOrders {
-		// TODO: show message depending on your shell
-		slog.Error("Shell integration not installed, please add `eval \"$(peon shell bash)\"` to your .bashrc.")
+		slog.Error(fmt.Sprintf("Shell integration not installed, please add `%s` to your `%s` file.", shell.EvalCommand(), shell.ConfigFile()))
 	}
 
 	name := cmd.StringArg("name")
