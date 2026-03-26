@@ -4,10 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/atomicptr/peon/pkg/cli/commands/shell"
 	"github.com/atomicptr/peon/pkg/cli/common/orders"
 	"github.com/atomicptr/peon/pkg/git"
+	"github.com/gosimple/slug"
+	"github.com/lithammer/fuzzysearch/fuzzy"
+	"github.com/samber/lo"
 	"github.com/urfave/cli/v3"
 )
 
@@ -68,18 +74,72 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 		return nil
 	}
 
-	// TODO: check if there is a worktree with the same literal name
-	// TODO: check if there is a worktree with the same sluggified name
+	nameSlug := slug.Make(name)
 
-	if cmd.Bool("create") {
+	worktrees, err := g.GetWorktrees()
+	if err != nil {
+		return err
+	}
+
+	var matchedWt *git.Worktree = nil
+
+	// look if there is a direct hit/match
+	for _, wt := range worktrees {
+		branch := wt.BranchShortName()
+
+		// check for the exact same name
+		if branch == name || strings.EqualFold(branch, name) || branch == nameSlug || strings.EqualFold(branch, nameSlug) {
+			matchedWt = &wt
+			break
+		}
+
+		pathName := strings.ToLower(filepath.Base(wt.Path))
+
+		if strings.HasSuffix(pathName, "-"+strings.ToLower(name)) || strings.HasSuffix(pathName, "-"+nameSlug) {
+			matchedWt = &wt
+			break
+		}
+	}
+
+	createNew := cmd.Bool("create")
+
+	if createNew {
 		// TODO: check if name conflicts, return error
 		// TODO: create the worktree
 		return nil // TODO: fall through cuz we switchin
 	}
 
-	// TODO: if name doesnt exist (and we havent created) fuzzy find the closest name (take recency into account)
-	// TODO: if does not exist show error
-	// TODO: switch
+	// no wt found yet, try to fuzzy find
+	if matchedWt == nil && !createNew {
+		matchedWt = findClosestMatch(nameSlug, worktrees)
+	}
 
-	return nil
+	// still not found?
+	if matchedWt == nil {
+		return fmt.Errorf("could not find any worktree named like: %s", name)
+	}
+
+	// we found the worktree, switch to it
+	return orders.ChangeDir(matchedWt.Path)
+}
+
+func findClosestMatch(query string, worktrees []git.Worktree) *git.Worktree {
+	if len(worktrees) == 0 {
+		return nil
+	}
+
+	targets := lo.Map(worktrees, func(wt git.Worktree, _ int) string {
+		return strings.ToLower(wt.BranchShortName() + " " + filepath.Base(wt.Path))
+	})
+
+	matches := fuzzy.RankFind(query, targets)
+
+	if len(matches) == 0 {
+		return nil
+	}
+
+	sort.Sort(matches)
+
+	bestMatch := matches[0].OriginalIndex
+	return &worktrees[bestMatch]
 }

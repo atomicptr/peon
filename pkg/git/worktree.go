@@ -19,6 +19,20 @@ type Worktree struct {
 	Prunable   string
 }
 
+func (wt Worktree) BranchShortName() string {
+	branch := wt.Branch
+
+	if branch == "" {
+		return ""
+	}
+
+	branch = strings.TrimPrefix(branch, "refs/heads/")
+	branch = strings.TrimPrefix(branch, "refs/remotes/")
+	branch = strings.TrimPrefix(branch, "refs/tags/")
+
+	return branch
+}
+
 func (h Handler) GetWorktrees() ([]Worktree, error) {
 	res, err := h.exec("worktree", "list", "--porcelain", "-z")
 	if err != nil {

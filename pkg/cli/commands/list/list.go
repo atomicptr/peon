@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 
 	"charm.land/lipgloss/v2"
@@ -82,11 +81,7 @@ func makeTableRow(wt git.Worktree, c git.CommitInfo) []string {
 		}
 	}
 
-	branch := wt.Branch
-
-	branch = strings.TrimPrefix(branch, "refs/heads/")
-	branch = strings.TrimPrefix(branch, "refs/remotes/")
-	branch = strings.TrimPrefix(branch, "refs/tags/")
+	branch := wt.BranchShortName()
 
 	if branch == "" {
 		branch = "-"
