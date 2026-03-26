@@ -86,6 +86,87 @@ func (h Handler) parseWorktreeResults(data, sep string) ([]Worktree, error) {
 	return worktrees, nil
 }
 
+func (h Handler) FindWorktreeByName(name string) (*Worktree, error) {
+	worktrees, err := h.GetWorktrees()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wt := range worktrees {
+		branch := wt.BranchShortName()
+
+		// has no branch name cant really be compared
+		if branch == "" {
+			continue
+		}
+
+		if strings.EqualFold(branch, name) {
+			return &wt, nil
+		}
+	}
+
+	// we couldnt find by branch, lets try finding by suffix
+	commonRootDir, err := h.FindCommonRoot()
+	if err != nil {
+		return nil, err
+	}
+
+	commonRootName, err := filepath.Abs(commonRootDir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wt := range worktrees {
+		wtDirName, err := filepath.Abs(wt.Path)
+		if err != nil {
+			return nil, err
+		}
+
+		// not managed by us (presumably)
+		if !strings.HasPrefix(wtDirName, commonRootName) {
+			continue
+		}
+
+		suffix := strings.TrimLeft(wtDirName[len(commonRootName):], "-")
+
+		// if it matches the suffix, return it
+		if strings.EqualFold(suffix, name) {
+			return &wt, nil
+		}
+	}
+
+	return nil, fmt.Errorf("could not find worktree with the name `%s`", name)
+}
+
+func (h Handler) FindWorktreeByPath(path string) (*Worktree, error) {
+	if !fs.Exists(path) {
+		return nil, fmt.Errorf("path `%s` does not exist", path)
+	}
+
+	searchPath, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+
+	worktrees, err := h.GetWorktrees()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, wt := range worktrees {
+		wtPath, err := filepath.Abs(wt.Path)
+		if err != nil {
+			return nil, err
+		}
+
+		if searchPath == wtPath {
+			return &wt, nil
+		}
+	}
+
+	return nil, fmt.Errorf("could not find worktree at the path `%s`", searchPath)
+}
+
 func (h Handler) CreateNewWorktreeFromMaster(newBranchName, targetPath string) (*Worktree, error) {
 	branch := h.FindMasterBranch()
 	if branch == "" {
@@ -165,4 +246,23 @@ func (h Handler) CreateWorktreeFromExistingBranch(branch, targetPath string) (*W
 	}
 
 	return nil, fmt.Errorf("could not find newly created worktree")
+}
+
+func (h Handler) DeleteWorktree(wt *Worktree, force bool) error {
+	// already deleted? Quit
+	if !fs.Exists(wt.Path) {
+		return nil
+	}
+
+	// TODO: check for unstaged/unpushed changes
+
+	var err error
+
+	if force {
+		_, err = h.exec("worktree", "remove", "-f", wt.Path)
+	} else {
+		_, err = h.exec("worktree", "remove", wt.Path)
+	}
+
+	return err
 }

@@ -3,7 +3,10 @@ package remove
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
+	"github.com/atomicptr/peon/pkg/cli/commands/shell"
+	"github.com/atomicptr/peon/pkg/cli/common/orders"
 	"github.com/atomicptr/peon/pkg/git"
 	"github.com/urfave/cli/v3"
 )
@@ -20,6 +23,13 @@ func Command() *cli.Command {
 				UsageText: "Worktree name",
 			},
 		},
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "force",
+				Aliases: []string{"f"},
+				Usage:   "Remove even if the worktree contains unstaged changes",
+			},
+		},
 		Action: removeCommand,
 	}
 }
@@ -34,5 +44,56 @@ func removeCommand(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("%s is not part of a git tree", g.WorkingDir)
 	}
 
-	return nil
+	orders, hasOrders := orders.FromEnv()
+	if !hasOrders {
+		slog.Error(fmt.Sprintf("Shell integration not installed, please add `%s` to your `%s` file.", shell.EvalCommand(), shell.ConfigFile()))
+	}
+
+	rootDir, err := g.FindCommonRoot()
+	if err != nil {
+		return err
+	}
+
+	name := cmd.StringArg("name")
+	forceRemove := cmd.Bool("force")
+
+	// no name specified, switch to default
+	if name == "" {
+		if hasOrders {
+			projectRoot, err := g.FindProjectRoot()
+			if err != nil {
+				return err
+			}
+
+			wt, err := g.FindWorktreeByPath(projectRoot)
+			if err != nil {
+				return err
+			}
+
+			// TODO: check if has unstaged / unpushed changes, reject if yes (unless force is applied)
+
+			err = g.DeleteWorktree(wt, forceRemove)
+			if err != nil {
+				return fmt.Errorf("couldnt remove worktree: %w", err)
+			}
+
+			return orders.ChangeDir(rootDir)
+		}
+
+		return nil
+	}
+
+	wt, err := g.FindWorktreeByName(name)
+	if err != nil {
+		return err
+	}
+
+	// TODO: check if has unstaged / unpushed changes, reject if yes (unless force is applied)
+
+	err = g.DeleteWorktree(wt, forceRemove)
+	if err != nil {
+		return fmt.Errorf("couldnt remove worktree: %w", err)
+	}
+
+	return orders.ChangeDir(rootDir)
 }

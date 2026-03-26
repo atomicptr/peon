@@ -65,10 +65,7 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 				return err
 			}
 
-			err = orders.ChangeDir(rootDir)
-			if err != nil {
-				return fmt.Errorf("could not change dirs: %w", err)
-			}
+			return orders.ChangeDir(rootDir)
 		}
 
 		return nil
@@ -139,7 +136,7 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 
 			matchedWt = wt
 		} else {
-			// TODO: also implement branching off a different branch
+			// TODO: also implement branching off a different branch then master
 			wt, err := g.CreateNewWorktreeFromMaster(name, targetPath)
 			if err != nil {
 				return fmt.Errorf("could not create new worktree: %w", err)
