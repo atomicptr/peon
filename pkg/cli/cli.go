@@ -7,9 +7,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/atomicptr/peon/pkg/cli/commands/hook"
 	"github.com/atomicptr/peon/pkg/cli/commands/list"
 	"github.com/atomicptr/peon/pkg/cli/commands/remove"
-	"github.com/atomicptr/peon/pkg/cli/commands/shell"
 	switchcmd "github.com/atomicptr/peon/pkg/cli/commands/switch"
 	"github.com/atomicptr/peon/pkg/config"
 	"github.com/atomicptr/peon/pkg/git"
@@ -52,7 +52,7 @@ func Run() error {
 			switchcmd.Command(),
 			list.Command(),
 			remove.Command(),
-			shell.Command(),
+			hook.Command(),
 		},
 		Version: meta.VersionStringWith(g.Version()),
 	}

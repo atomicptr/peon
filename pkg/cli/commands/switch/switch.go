@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/atomicptr/peon/pkg/cli/commands/shell"
+	"github.com/atomicptr/peon/pkg/cli/commands/hook"
 	"github.com/atomicptr/peon/pkg/cli/common/orders"
 	"github.com/atomicptr/peon/pkg/git"
 	"github.com/gosimple/slug"
@@ -52,7 +52,7 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 
 	orders, hasOrders := orders.FromEnv()
 	if !hasOrders {
-		slog.Error(fmt.Sprintf("Shell integration not installed, please add `%s` to your `%s` file.", shell.EvalCommand(), shell.ConfigFile()))
+		slog.Error(fmt.Sprintf("Shell integration not installed, please add `%s` to your `%s` file.", hook.EvalCommand(), hook.ConfigFile()))
 	}
 
 	name := cmd.StringArg("name")

@@ -1,4 +1,4 @@
-package shell
+package hook
 
 import (
 	"os"
@@ -10,8 +10,8 @@ import (
 
 func Command() *cli.Command {
 	return &cli.Command{
-		Name:  "shell",
-		Usage: "Shell Integrations",
+		Name:  "hook",
+		Usage: "Hooks for Shell Integrations",
 		Commands: []*cli.Command{
 			bashCommand(),
 			fishCommand(),

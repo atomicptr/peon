@@ -1,4 +1,4 @@
-package shell
+package hook
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-const bashEvalCommand = `eval "$(peon shell bash)"`
+const bashEvalCommand = `eval "$(peon hook bash)"`
 
 func bashCommand() *cli.Command {
 	return &cli.Command{
