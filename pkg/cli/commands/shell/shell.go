@@ -15,11 +15,11 @@ func Command() *cli.Command {
 		Commands: []*cli.Command{
 			bashCommand(),
 			fishCommand(),
+			zshCommand(),
 		},
 	}
 }
 
-// TODO: add support for zsh (and more?)
 func EvalCommand() string {
 	p := os.Getenv("SHELL")
 	n := filepath.Base(p)
@@ -29,6 +29,8 @@ func EvalCommand() string {
 		return bashEvalCommand
 	case "fish":
 		return fishEvalCommand
+	case "zsh":
+		return zshEvalCommand
 	default:
 		return bashEvalCommand
 	}
@@ -43,6 +45,8 @@ func ConfigFile() string {
 		return filepath.Join(xdg.Home, ".bashrc")
 	case "fish":
 		return filepath.Join(xdg.ConfigHome, "fish", "config.fish")
+	case "zsh":
+		return filepath.Join(xdg.Home, ".zshrc")
 	default:
 		return filepath.Join(xdg.Home, ".bashrc")
 	}
