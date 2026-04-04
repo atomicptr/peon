@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/atomicptr/peon/pkg/cli"
+	"atomicptr.dev/peon/pkg/cli"
 )
 
 func main() {

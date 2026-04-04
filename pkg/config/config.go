@@ -8,14 +8,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	"atomicptr.dev/peon/pkg/fs"
 	"github.com/BurntSushi/toml"
 	"github.com/adrg/xdg"
-	"github.com/atomicptr/peon/pkg/fs"
 )
 
 type contextKey string
 
-const ContextKey contextKey = "github.com/atomicptr/peon/pkg/config"
+const ContextKey contextKey = "atomicptr.dev/peon/pkg/config"
 
 type Config struct {
 	//

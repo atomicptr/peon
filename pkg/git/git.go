@@ -10,12 +10,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/atomicptr/peon/pkg/fs"
+	"atomicptr.dev/peon/pkg/fs"
 )
 
 type contextKey string
 
-const ContextKey contextKey = "github.com/atomicptr/peon/pkg/git"
+const ContextKey contextKey = "atomicptr.dev/peon/pkg/git"
 
 type Handler struct {
 	Executable string

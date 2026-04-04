@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/atomicptr/peon/pkg/fs"
+	"atomicptr.dev/peon/pkg/fs"
 )
 
 func (h Handler) IsGitDir() bool {

@@ -8,9 +8,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/atomicptr/peon/pkg/cli/commands/hook"
-	"github.com/atomicptr/peon/pkg/cli/common/orders"
-	"github.com/atomicptr/peon/pkg/git"
+	"atomicptr.dev/peon/pkg/cli/commands/hook"
+	"atomicptr.dev/peon/pkg/cli/common/orders"
+	"atomicptr.dev/peon/pkg/git"
 	"github.com/gosimple/slug"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/samber/lo"

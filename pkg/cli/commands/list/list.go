@@ -10,10 +10,10 @@ import (
 	"sort"
 	"time"
 
+	"atomicptr.dev/peon/pkg/git"
+	"atomicptr.dev/peon/pkg/util"
 	"charm.land/lipgloss/v2"
 	"charm.land/lipgloss/v2/table"
-	"github.com/atomicptr/peon/pkg/git"
-	"github.com/atomicptr/peon/pkg/util"
 	"github.com/charmbracelet/x/term"
 	"github.com/urfave/cli/v3"
 )

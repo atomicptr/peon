@@ -1,4 +1,4 @@
-module github.com/atomicptr/peon
+module atomicptr.dev/peon
 
 go 1.26.1
 

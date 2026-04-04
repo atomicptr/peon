@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/atomicptr/peon/pkg/fs"
+	"atomicptr.dev/peon/pkg/fs"
 )
 
 type FlagKind int
