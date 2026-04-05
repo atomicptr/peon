@@ -46,6 +46,7 @@ func removeCommand(ctx context.Context, cmd *cli.Command) error {
 
 	orders, hasOrders := orders.FromEnv()
 	if !hasOrders {
+		// TODO: add nicer error message for user output
 		slog.Error(fmt.Sprintf("Shell integration not installed, please add `%s` to your `%s` file.", hook.EvalCommand(), hook.ConfigFile()))
 	}
 
