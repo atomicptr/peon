@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"atomicptr.dev/bits"
 	"atomicptr.dev/peon/pkg/fs"
 	"github.com/BurntSushi/toml"
 	"github.com/adrg/xdg"
@@ -33,7 +34,7 @@ func FromEnv() (*Config, error) {
 
 	configFile := filepath.Join(xdg.ConfigHome, "peon", "config.toml")
 
-	if fs.Exists(configFile) {
+	if bits.PathExists(configFile) {
 		return FromPath(configFile)
 	}
 
@@ -41,7 +42,7 @@ func FromEnv() (*Config, error) {
 }
 
 func FromPath(path string) (*Config, error) {
-	if !fs.Exists(path) {
+	if !bits.PathExists(path) {
 		return nil, fmt.Errorf("unknown config file path specified: %s", path)
 	}
 

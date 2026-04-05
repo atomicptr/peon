@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"atomicptr.dev/bits"
 	"atomicptr.dev/peon/pkg/fs"
 )
 
@@ -15,7 +16,7 @@ type Order struct {
 }
 
 func (o Order) ChangeDir(path string) error {
-	if !fs.IsDir(path) {
+	if !bits.PathIsDir(path) {
 		return fmt.Errorf("path %s is not a directory or does not exist", path)
 	}
 

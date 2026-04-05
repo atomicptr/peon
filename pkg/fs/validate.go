@@ -1,6 +1,10 @@
 package fs
 
-import "path/filepath"
+import (
+	"path/filepath"
+
+	"atomicptr.dev/bits"
+)
 
 func ValidatePath(path string) (string, bool) {
 	if path == "" {
@@ -12,7 +16,7 @@ func ValidatePath(path string) (string, bool) {
 		return "", false
 	}
 
-	if Exists(p) {
+	if bits.PathExists(p) {
 		return p, true
 	}
 

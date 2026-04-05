@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"atomicptr.dev/peon/pkg/fs"
+	"atomicptr.dev/bits"
 )
 
 type FlagKind int
@@ -139,7 +139,7 @@ func (h Handler) FindWorktreeByName(name string) (*Worktree, error) {
 }
 
 func (h Handler) FindWorktreeByPath(path string) (*Worktree, error) {
-	if !fs.Exists(path) {
+	if !bits.PathExists(path) {
 		return nil, fmt.Errorf("path `%s` does not exist", path)
 	}
 
@@ -177,7 +177,7 @@ func (h Handler) CreateNewWorktreeFromMaster(newBranchName, targetPath string) (
 }
 
 func (h Handler) CreateNewWorktree(newBranchName, sourceBranch, targetPath string) (*Worktree, error) {
-	if fs.Exists(targetPath) {
+	if bits.PathExists(targetPath) {
 		return nil, fmt.Errorf("create new worktree - target path `%s` already exists", targetPath)
 	}
 
@@ -219,7 +219,7 @@ func (h Handler) CreateWorktreeFromExistingBranch(branch, targetPath string) (*W
 		return nil, fmt.Errorf("branch `%s` does not exist", branch)
 	}
 
-	if fs.Exists(targetPath) {
+	if bits.PathExists(targetPath) {
 		return nil, fmt.Errorf("target path `%s` already exists", targetPath)
 	}
 
@@ -250,7 +250,7 @@ func (h Handler) CreateWorktreeFromExistingBranch(branch, targetPath string) (*W
 
 func (h Handler) DeleteWorktree(wt *Worktree, force bool) error {
 	// already deleted? Quit
-	if !fs.Exists(wt.Path) {
+	if !bits.PathExists(wt.Path) {
 		return nil
 	}
 

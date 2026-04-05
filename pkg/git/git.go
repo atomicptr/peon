@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"atomicptr.dev/bits"
 	"atomicptr.dev/peon/pkg/fs"
 )
 
@@ -34,7 +35,7 @@ func (h Handler) exec(params ...string) (string, error) {
 		cwd = wd
 	}
 
-	if !fs.Exists(cwd) {
+	if !bits.PathExists(cwd) {
 		return "", fmt.Errorf("dir %s does not exist", cwd)
 	}
 
