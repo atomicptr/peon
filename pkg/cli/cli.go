@@ -85,7 +85,7 @@ func Run() error {
 			fmt.Sprintf("%s: %s", b.Render("    Code"), fmt.Sprintf("E%d", e.Code())),
 		}
 
-		chunks := util.SplitWordsEvery(e.Error(), 80)
+		chunks := util.SplitWordsEvery(e.Message(), 80)
 		first := true
 
 		for _, chunk := range chunks {
@@ -94,8 +94,6 @@ func Run() error {
 			if first {
 				prefix = b.Render(" Message:")
 				first = false
-
-				chunk = strings.TrimLeft(chunk, fmt.Sprintf("E%d ", e.Code()))
 			}
 
 			messages = append(messages, fmt.Sprintf("%s %s", prefix, chunk))
