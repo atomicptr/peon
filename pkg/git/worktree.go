@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"atomicptr.dev/bits"
+	xerr "atomicptr.dev/peon/pkg/err"
 )
 
 type FlagKind int
@@ -135,7 +136,7 @@ func (h Handler) FindWorktreeByName(name string) (*Worktree, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("could not find worktree with the name `%s`", name)
+	return nil, xerr.New(xerr.CodeWorktreeNotFound, fmt.Sprintf("Could not find any worktree named: `%s`", name), nil)
 }
 
 func (h Handler) FindWorktreeByPath(path string) (*Worktree, error) {

@@ -3,6 +3,7 @@ package remove
 import (
 	"atomicptr.dev/peon/pkg/cli/common/orders"
 	"atomicptr.dev/peon/pkg/cli/common/usererr"
+	xerr "atomicptr.dev/peon/pkg/err"
 	"atomicptr.dev/peon/pkg/git"
 	"context"
 	"fmt"
@@ -68,7 +69,16 @@ func removeCommand(ctx context.Context, cmd *cli.Command) error {
 				return err
 			}
 
-			// TODO: check if has unstaged / unpushed changes, reject if yes (unless force is applied)
+			if !forceRemove {
+				untrackedChanges, err := g.StatusFor(projectRoot)
+				if err != nil {
+					return err
+				}
+
+				if len(untrackedChanges) > 0 {
+					return xerr.New(xerr.CodeUnstagedChanges, fmt.Sprintf("Repository `%s` contains unstaged changes, please commit them or run this command again with the `--force` flag", projectRoot), nil)
+				}
+			}
 
 			err = g.DeleteWorktree(wt, forceRemove)
 			if err != nil {
@@ -86,11 +96,24 @@ func removeCommand(ctx context.Context, cmd *cli.Command) error {
 		return err
 	}
 
-	// TODO: check if has unstaged / unpushed changes, reject if yes (unless force is applied)
+	if !forceRemove {
+		untrackedChanges, err := g.StatusFor(wt.Path)
+		if err != nil {
+			return err
+		}
+
+		if len(untrackedChanges) > 0 {
+			return xerr.New(xerr.CodeUnstagedChanges, fmt.Sprintf("Repository `%s` contains unstaged changes, please commit them or run this command again with the `--force` flag", wt.Path), nil)
+		}
+	}
 
 	err = g.DeleteWorktree(wt, forceRemove)
 	if err != nil {
 		return fmt.Errorf("couldnt remove worktree: %w", err)
+	}
+
+	if !hasOrders {
+		return nil
 	}
 
 	return orders.ChangeDir(rootDir)

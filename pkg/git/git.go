@@ -35,13 +35,17 @@ func (h Handler) exec(params ...string) (string, error) {
 		cwd = wd
 	}
 
-	if !bits.PathExists(cwd) {
-		return "", fmt.Errorf("dir %s does not exist", cwd)
+	return h.execIn(cwd, params...)
+}
+
+func (h Handler) execIn(workingDirectory string, params ...string) (string, error) {
+	if !bits.PathExists(workingDirectory) {
+		return "", fmt.Errorf("dir %s does not exist", workingDirectory)
 	}
 
 	// #nosec G204 - this is fine
 	cmd := exec.Command(filepath.Clean(h.Executable), params...)
-	cmd.Dir = cwd
+	cmd.Dir = workingDirectory
 
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
@@ -51,7 +55,7 @@ func (h Handler) exec(params ...string) (string, error) {
 
 	slog.Debug(
 		"run git command",
-		"cwd", cwd,
+		"workingDir", workingDirectory,
 		"git", h.Executable,
 		"params", params,
 	)
@@ -71,7 +75,7 @@ func (h Handler) exec(params ...string) (string, error) {
 	out := strings.TrimSpace(stdout.String())
 	slog.Debug(
 		"run git command: output",
-		"cwd", cwd,
+		"cwd", workingDirectory,
 		"git", h.Executable,
 		"params", params,
 		"stdout", out,

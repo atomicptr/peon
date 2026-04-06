@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 
 	"atomicptr.dev/bits"
@@ -18,6 +19,7 @@ import (
 	xerr "atomicptr.dev/peon/pkg/err"
 	"atomicptr.dev/peon/pkg/git"
 	"atomicptr.dev/peon/pkg/meta"
+	"atomicptr.dev/peon/pkg/util"
 	"charm.land/lipgloss/v2"
 	"github.com/lmittmann/tint"
 	"github.com/urfave/cli/v3"
@@ -81,7 +83,24 @@ func Run() error {
 
 		messages := []string{
 			fmt.Sprintf("%s: %s", b.Render("    Code"), fmt.Sprintf("E%d", specialErr.Code)),
-			fmt.Sprintf("%s: %s", b.Render(" Message"), specialErr.Message),
+		}
+
+		chunks := util.SplitWordsEvery(specialErr.Message, 80)
+		first := true
+
+		for _, chunk := range chunks {
+			prefix := strings.Repeat(" ", 9)
+
+			if first {
+				prefix = b.Render(" Message:")
+				first = false
+			}
+
+			messages = append(messages, fmt.Sprintf("%s %s", prefix, chunk))
+		}
+
+		if specialErr.Err != nil {
+			messages = append(messages, fmt.Sprintf("%s: %s", b.Render("   Error"), specialErr.Err.Error()))
 		}
 
 		if debugMode {

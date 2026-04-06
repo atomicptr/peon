@@ -157,6 +157,10 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 		return xerr.New(xerr.CodeWorktreeNotFound, fmt.Sprintf("Could not find any worktree named: `%s`", name), nil)
 	}
 
+	if !hasOrders {
+		return nil
+	}
+
 	// we found the worktree, switch to it
 	return orders.ChangeDir(matchedWt.Path)
 }
