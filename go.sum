@@ -1,5 +1,7 @@
 atomicptr.dev/bits v0.2.1 h1:rdtR+ei5aHGIWiiGSDAakRxo4Q3nPIHyDVdqBI8nnII=
 atomicptr.dev/bits v0.2.1/go.mod h1:TtmnkiIF6due/tOGRF4p6YUnYH8E5Jycnjo59vlOBcE=
+atomicptr.dev/deeperr v0.1.0 h1:IGY0Hai8UapMDhbnEzfA+rOO6G1OyWlBRSHil8hyzPA=
+atomicptr.dev/deeperr v0.1.0/go.mod h1:87Cj4hX0YYMG3hU1vgJops1M7TIBb8k9pIp20qHjSpk=
 charm.land/lipgloss/v2 v2.0.2 h1:xFolbF8JdpNkM2cEPTfXEcW1p6NRzOWTSamRfYEw8cs=
 charm.land/lipgloss/v2 v2.0.2/go.mod h1:KjPle2Qd3YmvP1KL5OMHiHysGcNwq6u83MUjYkFvEkM=
 github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk=

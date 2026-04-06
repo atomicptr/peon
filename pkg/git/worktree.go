@@ -7,7 +7,8 @@ import (
 	"strings"
 
 	"atomicptr.dev/bits"
-	xerr "atomicptr.dev/peon/pkg/err"
+	"atomicptr.dev/deeperr"
+	"atomicptr.dev/peon/pkg/constants"
 )
 
 type FlagKind int
@@ -136,7 +137,7 @@ func (h Handler) FindWorktreeByName(name string) (*Worktree, error) {
 		}
 	}
 
-	return nil, xerr.New(xerr.CodeWorktreeNotFound, fmt.Sprintf("Could not find any worktree named: `%s`", name), nil)
+	return nil, deeperr.NewWithCode(constants.ErrWorktreeNotFound, fmt.Sprintf("Could not find any worktree named: `%s`", name), nil)
 }
 
 func (h Handler) FindWorktreeByPath(path string) (*Worktree, error) {

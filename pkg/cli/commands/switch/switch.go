@@ -8,9 +8,10 @@ import (
 	"sort"
 	"strings"
 
+	"atomicptr.dev/deeperr"
 	"atomicptr.dev/peon/pkg/cli/common/orders"
 	"atomicptr.dev/peon/pkg/cli/common/usererr"
-	xerr "atomicptr.dev/peon/pkg/err"
+	"atomicptr.dev/peon/pkg/constants"
 	"atomicptr.dev/peon/pkg/git"
 	"github.com/gosimple/slug"
 	"github.com/lithammer/fuzzysearch/fuzzy"
@@ -154,7 +155,7 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 
 	// still not found?
 	if matchedWt == nil {
-		return xerr.New(xerr.CodeWorktreeNotFound, fmt.Sprintf("Could not find any worktree named: `%s`", name), nil)
+		return deeperr.NewWithCode(constants.ErrWorktreeNotFound, fmt.Sprintf("Could not find any worktree named: `%s`", name), nil)
 	}
 
 	if !hasOrders {

@@ -1,12 +1,14 @@
 package remove
 
 import (
-	"atomicptr.dev/peon/pkg/cli/common/orders"
-	"atomicptr.dev/peon/pkg/cli/common/usererr"
-	xerr "atomicptr.dev/peon/pkg/err"
-	"atomicptr.dev/peon/pkg/git"
 	"context"
 	"fmt"
+
+	"atomicptr.dev/deeperr"
+	"atomicptr.dev/peon/pkg/cli/common/orders"
+	"atomicptr.dev/peon/pkg/cli/common/usererr"
+	"atomicptr.dev/peon/pkg/constants"
+	"atomicptr.dev/peon/pkg/git"
 	"github.com/urfave/cli/v3"
 )
 
@@ -76,7 +78,7 @@ func removeCommand(ctx context.Context, cmd *cli.Command) error {
 				}
 
 				if len(untrackedChanges) > 0 {
-					return xerr.New(xerr.CodeUnstagedChanges, fmt.Sprintf("Repository `%s` contains unstaged changes, please commit them or run this command again with the `--force` flag", projectRoot), nil)
+					return deeperr.NewWithCode(constants.ErrUnstagedChanges, fmt.Sprintf("Repository `%s` contains unstaged changes, please commit them or run this command again with the `--force` flag", projectRoot), nil)
 				}
 			}
 
@@ -103,7 +105,7 @@ func removeCommand(ctx context.Context, cmd *cli.Command) error {
 		}
 
 		if len(untrackedChanges) > 0 {
-			return xerr.New(xerr.CodeUnstagedChanges, fmt.Sprintf("Repository `%s` contains unstaged changes, please commit them or run this command again with the `--force` flag", wt.Path), nil)
+			return deeperr.NewWithCode(constants.ErrUnstagedChanges, fmt.Sprintf("Repository `%s` contains unstaged changes, please commit them or run this command again with the `--force` flag", wt.Path), nil)
 		}
 	}
 

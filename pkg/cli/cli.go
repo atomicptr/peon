@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"atomicptr.dev/bits"
+	"atomicptr.dev/deeperr"
 	"atomicptr.dev/peon/pkg/cli/commands/hook"
 	"atomicptr.dev/peon/pkg/cli/commands/list"
 	"atomicptr.dev/peon/pkg/cli/commands/remove"
 	switchcmd "atomicptr.dev/peon/pkg/cli/commands/switch"
 	"atomicptr.dev/peon/pkg/cli/common/errormsg"
 	"atomicptr.dev/peon/pkg/config"
-	xerr "atomicptr.dev/peon/pkg/err"
 	"atomicptr.dev/peon/pkg/git"
 	"atomicptr.dev/peon/pkg/meta"
 	"atomicptr.dev/peon/pkg/util"
@@ -78,14 +78,14 @@ func Run() error {
 	err := cmd.Run(context.Background(), os.Args)
 
 	// if the error was one of our annotated errors, display a nicer error message
-	if specialErr, ok := errors.AsType[xerr.Error](err); ok {
+	if e, ok := errors.AsType[deeperr.Error](err); ok {
 		b := lipgloss.NewStyle().Bold(true)
 
 		messages := []string{
-			fmt.Sprintf("%s: %s", b.Render("    Code"), fmt.Sprintf("E%d", specialErr.Code)),
+			fmt.Sprintf("%s: %s", b.Render("    Code"), fmt.Sprintf("E%d", e.Code())),
 		}
 
-		chunks := util.SplitWordsEvery(specialErr.Message, 80)
+		chunks := util.SplitWordsEvery(e.Error(), 80)
 		first := true
 
 		for _, chunk := range chunks {
@@ -94,17 +94,20 @@ func Run() error {
 			if first {
 				prefix = b.Render(" Message:")
 				first = false
+
+				chunk = strings.TrimLeft(chunk, fmt.Sprintf("E%d ", e.Code()))
 			}
 
 			messages = append(messages, fmt.Sprintf("%s %s", prefix, chunk))
 		}
 
-		if specialErr.Err != nil {
-			messages = append(messages, fmt.Sprintf("%s: %s", b.Render("   Error"), specialErr.Err.Error()))
+		if err := e.Unwrap(); err != nil {
+			messages = append(messages, fmt.Sprintf("%s: %s", b.Render("   Error"), err.Error()))
 		}
 
 		if debugMode {
-			messages = append(messages, fmt.Sprintf("%s: %s", b.Render("Location"), specialErr.LocationShort()))
+			file, line := e.Location()
+			messages = append(messages, fmt.Sprintf("%s: %s:%d", b.Render("Location"), util.CutPathAfter(file, "/pkg/"), line))
 		}
 
 		fmt.Fprintln(
