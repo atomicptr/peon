@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -12,14 +13,19 @@ import (
 	"atomicptr.dev/peon/pkg/cli/commands/list"
 	"atomicptr.dev/peon/pkg/cli/commands/remove"
 	switchcmd "atomicptr.dev/peon/pkg/cli/commands/switch"
+	"atomicptr.dev/peon/pkg/cli/common/errormsg"
 	"atomicptr.dev/peon/pkg/config"
+	xerr "atomicptr.dev/peon/pkg/err"
 	"atomicptr.dev/peon/pkg/git"
 	"atomicptr.dev/peon/pkg/meta"
+	"charm.land/lipgloss/v2"
 	"github.com/lmittmann/tint"
 	"github.com/urfave/cli/v3"
 )
 
 func Run() error {
+	debugMode := bits.GetEnvBool("PEON_DEBUG", false)
+
 	cmd := &cli.Command{
 		Name:    "peon",
 		Usage:   "Peon is a Git Worktree management tool designed for humans",
@@ -31,8 +37,6 @@ func Run() error {
 			hook.Command(),
 		},
 		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
-			debugMode := bits.GetEnvBool("PEON_DEBUG", false)
-
 			level := slog.LevelInfo
 
 			if debugMode {
@@ -69,5 +73,29 @@ func Run() error {
 		},
 	}
 
-	return cmd.Run(context.Background(), os.Args)
+	err := cmd.Run(context.Background(), os.Args)
+
+	// if the error was one of our annotated errors, display a nicer error message
+	if specialErr, ok := errors.AsType[xerr.Error](err); ok {
+		b := lipgloss.NewStyle().Bold(true)
+
+		messages := []string{
+			fmt.Sprintf("%s: %s", b.Render("    Code"), fmt.Sprintf("E%d", specialErr.Code)),
+			fmt.Sprintf("%s: %s", b.Render(" Message"), specialErr.Message),
+		}
+
+		if debugMode {
+			messages = append(messages, fmt.Sprintf("%s: %s", b.Render("Location"), specialErr.LocationShort()))
+		}
+
+		fmt.Fprintln(
+			os.Stderr,
+			errormsg.Render(
+				"Oops! Something went wrong!",
+				messages...,
+			))
+		os.Exit(1)
+	}
+
+	return err
 }

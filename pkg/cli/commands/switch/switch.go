@@ -8,8 +8,9 @@ import (
 	"sort"
 	"strings"
 
-	"atomicptr.dev/peon/pkg/cli/commands/hook"
 	"atomicptr.dev/peon/pkg/cli/common/orders"
+	"atomicptr.dev/peon/pkg/cli/common/usererr"
+	xerr "atomicptr.dev/peon/pkg/err"
 	"atomicptr.dev/peon/pkg/git"
 	"github.com/gosimple/slug"
 	"github.com/lithammer/fuzzysearch/fuzzy"
@@ -52,8 +53,7 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 
 	orders, hasOrders := orders.FromEnv()
 	if !hasOrders {
-		// TODO: add nicer error message for user output
-		slog.Error(fmt.Sprintf("Shell integration not installed, please add `%s` to your `%s` file.", hook.EvalCommand(), hook.ConfigFile()))
+		usererr.ShellIntegrationNotInstalled()
 	}
 
 	name := cmd.StringArg("name")
@@ -154,7 +154,7 @@ func switchCommand(ctx context.Context, cmd *cli.Command) error {
 
 	// still not found?
 	if matchedWt == nil {
-		return fmt.Errorf("could not find any worktree named like: %s", name)
+		return xerr.New(xerr.CodeWorktreeNotFound, fmt.Sprintf("Could not find any worktree named: `%s`", name), nil)
 	}
 
 	// we found the worktree, switch to it

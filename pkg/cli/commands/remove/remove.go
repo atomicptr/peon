@@ -1,13 +1,11 @@
 package remove
 
 import (
+	"atomicptr.dev/peon/pkg/cli/common/orders"
+	"atomicptr.dev/peon/pkg/cli/common/usererr"
+	"atomicptr.dev/peon/pkg/git"
 	"context"
 	"fmt"
-	"log/slog"
-
-	"atomicptr.dev/peon/pkg/cli/commands/hook"
-	"atomicptr.dev/peon/pkg/cli/common/orders"
-	"atomicptr.dev/peon/pkg/git"
 	"github.com/urfave/cli/v3"
 )
 
@@ -46,8 +44,7 @@ func removeCommand(ctx context.Context, cmd *cli.Command) error {
 
 	orders, hasOrders := orders.FromEnv()
 	if !hasOrders {
-		// TODO: add nicer error message for user output
-		slog.Error(fmt.Sprintf("Shell integration not installed, please add `%s` to your `%s` file.", hook.EvalCommand(), hook.ConfigFile()))
+		usererr.ShellIntegrationNotInstalled()
 	}
 
 	rootDir, err := g.FindCommonRoot()
