@@ -9,11 +9,12 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+const fishName = "fish"
 const fishEvalCommand = `eval "$(peon hook fish)"`
 
 func fishCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "fish",
+		Name:  fishName,
 		Usage: "Returns Fish initialization code",
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			exePath, err := os.Executable()

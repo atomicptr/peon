@@ -45,11 +45,7 @@ func Run() error {
 				level = slog.LevelDebug
 			}
 
-			h := tint.NewHandler(os.Stderr, &tint.Options{
-				Level:      level,
-				TimeFormat: time.Kitchen,
-				AddSource:  true,
-			})
+			h := tint.NewTextHandler(os.Stderr, &tint.Options{Level: level, TimeFormat: time.Kitchen, AddSource: true})
 			logger := slog.New(h)
 			slog.SetDefault(logger)
 

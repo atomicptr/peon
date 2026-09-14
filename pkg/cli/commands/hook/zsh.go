@@ -9,11 +9,12 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+const zshName = "zsh"
 const zshEvalCommand = `eval "$(peon hook zsh)"`
 
 func zshCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "zsh",
+		Name:  zshName,
 		Usage: "Returns zsh initialization code",
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			exePath, err := os.Executable()

@@ -9,11 +9,12 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+const bashName = "bash"
 const bashEvalCommand = `eval "$(peon hook bash)"`
 
 func bashCommand() *cli.Command {
 	return &cli.Command{
-		Name:  "bash",
+		Name:  bashName,
 		Usage: "Returns Bash initialization code",
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			exePath, err := os.Executable()

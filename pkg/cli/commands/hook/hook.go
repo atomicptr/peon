@@ -25,11 +25,11 @@ func EvalCommand() string {
 	n := filepath.Base(p)
 
 	switch n {
-	case "bash":
+	case bashName:
 		return bashEvalCommand
-	case "fish":
+	case fishName:
 		return fishEvalCommand
-	case "zsh":
+	case zshName:
 		return zshEvalCommand
 	default:
 		return bashEvalCommand
@@ -41,11 +41,11 @@ func ConfigFile() string {
 	n := filepath.Base(p)
 
 	switch n {
-	case "bash":
+	case bashName:
 		return filepath.Join(xdg.Home, ".bashrc")
-	case "fish":
+	case fishName:
 		return filepath.Join(xdg.ConfigHome, "fish", "config.fish")
-	case "zsh":
+	case zshName:
 		return filepath.Join(xdg.Home, ".zshrc")
 	default:
 		return filepath.Join(xdg.Home, ".bashrc")
