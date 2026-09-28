@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"atomicptr.dev/deeperr"
+	"atomicptr.dev/peon/pkg/cli/common/complete"
 	"atomicptr.dev/peon/pkg/cli/common/orders"
 	"atomicptr.dev/peon/pkg/cli/common/usererr"
 	"atomicptr.dev/peon/pkg/constants"
@@ -31,7 +32,8 @@ func Command() *cli.Command {
 				Usage:   "Remove even if the worktree contains unstaged changes",
 			},
 		},
-		Action: removeCommand,
+		Action:        removeCommand,
+		ShellComplete: complete.WorktreeNameShellComplete,
 	}
 }
 

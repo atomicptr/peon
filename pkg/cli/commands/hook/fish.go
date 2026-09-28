@@ -41,7 +41,9 @@ function peon
         eval (cat "$orders")
 		rm -f "$orders"
     end
-end`, path)
+end
+
+peon completion fish | source`, path)
 
 			return nil
 		},

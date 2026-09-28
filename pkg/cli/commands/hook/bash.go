@@ -41,7 +41,9 @@ peon() {
 		eval "$(<"$orders")"
 		rm -f "$orders"
 	fi
-}`, path)
+}
+
+source <(peon completion bash)`, path)
 
 			return nil
 		},

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"atomicptr.dev/deeperr"
+	"atomicptr.dev/peon/pkg/cli/common/complete"
 	"atomicptr.dev/peon/pkg/cli/common/orders"
 	"atomicptr.dev/peon/pkg/cli/common/usererr"
 	"atomicptr.dev/peon/pkg/constants"
@@ -38,7 +39,8 @@ func Command() *cli.Command {
 				Usage:   "Create a new worktree",
 			},
 		},
-		Action: switchCommand,
+		Action:        switchCommand,
+		ShellComplete: complete.WorktreeNameShellComplete,
 	}
 }
 

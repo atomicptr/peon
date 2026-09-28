@@ -41,7 +41,9 @@ peon() {
 		eval "$(cat "$orders")"
 		rm -f "$orders"
 	fi
-}`, path)
+}
+
+source <(peon completion zsh)`, path)
 
 			return nil
 		},
