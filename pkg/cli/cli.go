@@ -29,9 +29,10 @@ func Run() error {
 	debugMode := bits.GetEnvBool("PEON_DEBUG", false)
 
 	cmd := &cli.Command{
-		Name:    "peon",
-		Usage:   "Peon is a Git Worktree management tool designed for humans",
-		Version: meta.VersionStringWith(""),
+		Name:                  "peon",
+		Usage:                 "Peon is a Git Worktree management tool designed for humans",
+		Version:               meta.VersionStringWith(""),
+		EnableShellCompletion: true,
 		Commands: []*cli.Command{
 			switchcmd.Command(),
 			list.Command(),
