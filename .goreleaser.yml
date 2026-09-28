@@ -1,0 +1,61 @@
+version: 2
+
+builds:
+  - main: ./cmd/peon/main.go
+    ldflags:
+      - -w -extldflags "-static"
+      - -X github.com/atomicptr/peon/pkg/meta.Version={{.Version}}
+      - -X github.com/atomicptr/peon/pkg/meta.GitCommit={{.FullCommit}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+archives:
+  - id: default
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  version_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+# Release
+
+## Github Releases
+release:
+  github:
+    owner: atomicptr
+    name: peon
+  draft: false
+
+## Nix:
+nix:
+  - name: peon
+    repository:
+      owner: atomicptr
+      name: nix
+      branch: master
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    homepage: &homepage "https://github.com/atomicptr/peon"
+    description: &description "Peon is a simple Git Worktree management tool designed for humans"
+    license: gpl3
+
+## NFPM (deb and rpm)
+nfpms:
+  - package_name: peon
+    vendor: atomicptr
+    maintainer: "Christopher Kaster <me@atomicptr.de>"
+    homepage: *homepage
+    description: *description
+    license: GPLv3
+    formats:
+      - deb
+      - rpm
